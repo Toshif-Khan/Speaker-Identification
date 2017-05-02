@@ -30,7 +30,7 @@ namespace speakerIdentification
     {
         private bool _speakersLoaded = false;
         private string _selectedFile = "";
-        private SpeakerIdentificationServiceClient _serviceClient = new SpeakerIdentificationServiceClient("4e48d61f1fc94ada8faa15905fc78dd7");
+        private SpeakerIdentificationServiceClient _serviceClient = new SpeakerIdentificationServiceClient("Your Subscription Key");
         private WaveIn _waveIn;
         private WaveFileWriter _fileWriter;
 
