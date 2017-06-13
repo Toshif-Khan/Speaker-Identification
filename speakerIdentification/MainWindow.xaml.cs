@@ -30,7 +30,7 @@ namespace speakerIdentification
     {
         private bool _speakersLoaded = false;
         private string _selectedFile = "";
-        private SpeakerIdentificationServiceClient _serviceClient = new SpeakerIdentificationServiceClient("Your Subscription Key");
+        private SpeakerIdentificationServiceClient _serviceClient = new SpeakerIdentificationServiceClient("Your Speaker Recognition API Subscription Key");
         private WaveIn _waveIn;
         private WaveFileWriter _fileWriter;
 
@@ -44,7 +44,6 @@ namespace speakerIdentification
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //SetSingleSelectionMode();
             SetMultipleSelectionMode();
         }
 
@@ -140,13 +139,6 @@ namespace speakerIdentification
             await UpdateAllSpeakersAsync();
         }
 
-        /// <summary>
-        /// Enables single selection mode for the speakers list
-        /// </summary>
-        public void SetSingleSelectionMode()
-        {
-            _speakersListView.SelectionMode = SelectionMode.Single;
-        }
 
         /// <summary>
         /// Enables multiple selection mode for the speakers list
@@ -175,31 +167,24 @@ namespace speakerIdentification
         {
             try
             {
-                //window.Log("Creating Speaker Profile...");
                 Title = String.Format("Creating Speaker Profile...");
                 CreateProfileResponse creationResponse = await _serviceClient.CreateProfileAsync(_localeCmb.Text);
-                // window.Log("Speaker Profile Created.");
-                //window.Log("Retrieving The Created Profile...");
                 Title = String.Format("Speaker Profile Created.");
                 Title = String.Format("Retrieving The Created Profile...");
                 Profile profile = await _serviceClient.GetProfileAsync(creationResponse.ProfileId);
-                //window.Log("Speaker Profile Retrieved.");
                 Title = String.Format("Speaker Profile Retrieved.");
                 AddSpeaker(profile);
             }
             catch (CreateProfileException ex)
             {
-                //window.Log("Profile Creation Error: " + ex.Message);
                 Title = String.Format("Profile Creation Error: " + ex.Message);
             }
             catch (GetProfileException ex)
             {
-                //window.Log("Error Retrieving The Profile: " + ex.Message);
                 Title = String.Format("Error Retrieving The Profile: " + ex.Message);
             }
             catch (Exception ex)
             {
-                //window.Log("Error: " + ex.Message);
                 Title = String.Format("Error: " + ex.Message);
             }
 
@@ -212,7 +197,6 @@ namespace speakerIdentification
                 if (_selectedFile == "")
                     throw new Exception("No File Selected.");
 
-                //window.Log("Enrolling Speaker...");
                 Title = String.Format("Enrolling Speaker...");
                 Profile[] selectedProfiles = GetSelectedProfiles();
 
@@ -245,17 +229,14 @@ namespace speakerIdentification
                 {
                     throw new EnrollmentException("Enrollment operation timeout.");
                 }
-                //window.Log("Enrollment Done.");
                 await UpdateAllSpeakersAsync();
             }
             catch (EnrollmentException ex)
             {
-                //window.Log("Enrollment Error: " + ex.Message);
                 Title = String.Format("Enrollment Error: " + ex.Message);
             }
             catch (Exception ex)
             {
-                //window.Log("Error: " + ex.Message);
                 Title = String.Format("Error: " + ex.Message);
             }
         }
@@ -268,37 +249,20 @@ namespace speakerIdentification
 
             if (!(bool)result)
             {
-                //window.Log("No File Selected.");
                 Title = String.Format("No File Selected.");
                 return;
             }
-            //window.Log("File Selected: " + openFileDialog.FileName);
             Title = String.Format("File Selected: " + openFileDialog.FileName);
             _selectedFile = openFileDialog.FileName;
         }
 
         private async void _identifyBtn_Click(object sender, RoutedEventArgs e)
         {
-            //Guid[] testProfileIds = new Guid[3];
-            //testProfileIds[0] = aeb46767 - 24b7 - 4d9d - a9ad - dd7dc965b0bb;
-            //List<Guid> selectedItems = new List<Guid>(3);
-            //selectedItems.Add(Guid.Parse("aeb46767-24b7-4d9d-a9ad-dd7dc965b0bb"));
-            //selectedItems.Add(Guid.Parse("7ce81071-ef9d-46cf-9d87-02d465b1a972"));
-            //selectedItems.Add(Guid.Parse("f7d5a9d2-9663-4504-b53c-ee0c2c975104"));
-
-            //Guid[] selectedIds = new Guid[3];
-            //for (int i = 0; i < 3; i++)
-            //{
-            //    selectedIds[i] = selectedItems[i];
-            //}
-
-            //SetMultipleSelectionMode();
             try
             {
                 if (_selectedFile == "")
                     throw new Exception("No File Selected.");
 
-                //window.Log("Identifying File...");
                 Title = String.Format("Identifying File...");
 
                 Profile[] selectedProfiles = GetSelectedProfiles();
@@ -308,18 +272,12 @@ namespace speakerIdentification
                 {
                     testProfileIds[i] = selectedProfiles[i].ProfileId;
                 }
-
-                //Guid[] testProfileIds = new Guid[selectedItems.Capacity];
-                //for (int i = 0; i < testProfileIds.Length; i++)
-                //{
-                //    testProfileIds[i] = selectedItems[i];
-                //}
                 OperationLocation processPollingLocation;
                 using (Stream audioStream = File.OpenRead(_selectedFile))
                 {
                     _selectedFile = "";
                     processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, testProfileIds, ((sender as Button) == _identifyShortAudioBtn));
-                    //processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, selectedIds, ((sender as Button) == _identifyShortAudioBtn));
+                    
                 }
 
                 IdentificationOperation identificationResponse = null;
@@ -344,11 +302,8 @@ namespace speakerIdentification
                 {
                     throw new IdentificationException("Identification operation timeout.");
                 }
-
-                //window.Log("Identification Done.");
                 Title = String.Format("Identification Done.");
 
-                //_identificationResultTxtBlk.Text = identificationResponse.ProcessingResult.IdentifiedProfileId.ToString();
                 if(identificationResponse.ProcessingResult.IdentifiedProfileId.ToString()=="aeb46767-24b7-4d9d-a9ad-dd7dc965b0bb")
                 {
                     _identificationResultTxtBlk.Text = "Toshif";
@@ -356,12 +311,12 @@ namespace speakerIdentification
 
                 if (identificationResponse.ProcessingResult.IdentifiedProfileId.ToString() == "7ce81071-ef9d-46cf-9d87-02d465b1a972")
                 {
-                    _identificationResultTxtBlk.Text = "Aakash";
+                    _identificationResultTxtBlk.Text = "Jainab";
                 }
 
                 if (identificationResponse.ProcessingResult.IdentifiedProfileId.ToString() == "f7d5a9d2-9663-4504-b53c-ee0c2c975104")
                 {
-                    _identificationResultTxtBlk.Text = "Nandini";
+                    _identificationResultTxtBlk.Text = "Shakil";
                 }
                 else
                 {
@@ -372,12 +327,10 @@ namespace speakerIdentification
             }
             catch (IdentificationException ex)
             {
-                //window.Log("Speaker Identification Error: " + ex.Message);
                 Title = String.Format("Speaker Identification Error: " + ex.Message);
             }
             catch (Exception ex)
             {
-                //window.Log("Error: " + ex.Message);
                 Title = String.Format("Error: " + ex.Message);
             }
         }
@@ -391,26 +344,16 @@ namespace speakerIdentification
                     throw new Exception("Cannot detect microphone.");
                 }
 
-                //SaveFileDialog save = new SaveFileDialog();
-                //save.Filter = "Wav File (*.wav)|*.wav;";
-                //bool? saveResult = save.ShowDialog();
-
-                //if (!(bool)saveResult) return;
-
                 string getDirectory = Directory.GetCurrentDirectory();
                 _selectedFile = getDirectory + "\\Sample1.wav";
-
-                //_fileWriter = new NAudio.Wave.WaveFileWriter(save.FileName, _waveIn.WaveFormat);
                 _fileWriter = new NAudio.Wave.WaveFileWriter(_selectedFile, _waveIn.WaveFormat);
                 _waveIn.StartRecording();
                 btnStartRecording.IsEnabled = false;
                 btnStopRecording.IsEnabled = true;
                 Title = String.Format("Recording...");
-                //setStatus("Recording...");
             }
             catch (Exception ge)
             {
-                //setStatus("Error: " + ge.Message);
                 Console.WriteLine("Error: " + ge.Message);
             }
 
